@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weeks in Life</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-color: #0a192f;
+            --secondary-color: #172a45;
+            --accent-color: #64ffda;
+            --text-color: #e6f1ff;
+            --star-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            color: var(--text-color);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%);
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background-color: var(--star-color);
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            background-color: rgba(23, 42, 69, 0.7);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 80%;
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-container, .result-container {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 4px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        input[type="date"], input[type="text"], select {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: rgba(100, 255, 218, 0.1);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        input[type="date"]:focus, input[type="text"]:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+        }
+
+        input[type="submit"] {
+            padding: 12px;
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #4cd3a9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(100, 255, 218, 0.4);
+        }
+
+        #calculation-result {
+            background-color: rgba(23, 42, 69, 0.5);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.8;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #color-scheme-container {
+            width: 100%;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #color-scheme-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .color-scheme-btn {
+            padding: 8px 12px;
+            background-color: rgba(100, 255, 218, 0.2);
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            white-space: nowrap;
+            margin-bottom: 5px;
+        }
+
+        .color-scheme-btn:hover, .color-scheme-btn.active {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+        }
+
+        #life-weeks-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .download-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #download-hint, #download-cooldown {
+            margin: 0 10px;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                width: 90%;
+            }
+
+            form {
+                gap: 10px;
+            }
+
+            label {
+                margin-bottom: 2px;
+            }
+
+            input[type="date"], input[type="text"], select {
+                padding: 8px;
+                margin-bottom: 10px;
+                font-size: 14px;
+            }
+
+            input[type="submit"] {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 2px;
+            font-weight: bold;
+            color: var(--accent-color);
+            font-size: 14px;
+        }
+
+        .form-group input[type="date"],
+        .form-group input[type="text"],
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--secondary-color);
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                width: 95%;
+            }
+
+            .form-group {
+                margin-bottom: 8px;
+            }
+
+            .form-group label {
+                font-size: 12px;
+            }
+
+            .form-group input[type="date"],
+            .form-group input[type="text"],
+            .form-group select {
+                padding: 6px;
+                font-size: 14px;
+            }
+
+            input[type="submit"] {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-container">
+        <div class="stars"></div>
+    </div>
+    <div class="container">
+        <h1>Weeks in Life</h1>
+        <div class="content">
+            <div class="form-container">
+                <form id="life-weeks-form">
+                    <div class="form-group">
+                        <label for="birth_date">Birth Date:</label>
+                        <input type="date" id="birth_date" name="birth_date" required value="1971-06-28">
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Name (optional):</label>
+                        <input type="text" id="name" name="name" value="Elon Musk">
+                    </div>
+                    <div class="form-group">
+                        <label for="life_expectancy">Life Expectancy:</label>
+                        <select id="life_expectancy" name="life_expectancy" required>
+                            <!-- Options will be dynamically generated by JavaScript -->
+                        </select>
+                    </div>
+                    <input type="submit" value="Generate Image">
+                </form>
+            </div>
+            <div class="result-container">
+                <div id="calculation-result" style="display: none;"></div>
+                <div id="color-scheme-container">
+                    <div id="color-scheme-buttons" style="display: none;"></div>
+                </div>
+                <div class="download-info">
+                    <p id="download-hint" style="display: none;">Click the image to download</p>
+                    <p id="download-cooldown" style="display: none;"></p>
+                </div>
+                <a id="download-link" style="display: block; cursor: pointer;">
+                    <img id="life-weeks-image" style="display: none; max-width: 100%; height: auto;">
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            let currentColorScheme = 'starry_night';
+            let images = {};
+            let colorSchemeNames = {};
+            let filenames = {};
+            let lastDownloadTime = 0;
+            const DOWNLOAD_COOLDOWN = 12000; // 12 seconds
+            const MAX_DOWNLOADS_PER_MINUTE = 5;
+            let downloadsInLastMinute = 0;
+            let downloadTimestamps = [];
+
+            function canDownload() {
+                const now = Date.now();
+                
+                // Check if cooling time
+                if (now - lastDownloadTime < DOWNLOAD_COOLDOWN) {
+                    const remainingTime = Math.ceil((DOWNLOAD_COOLDOWN - (now - lastDownloadTime)) / 1000);
+                    $('#download-cooldown').text(`Please wait ${remainingTime} seconds before downloading again`).show();
+                    return false;
+                }
+
+                // Check download frequency per minute
+                downloadTimestamps = downloadTimestamps.filter(timestamp => now - timestamp < 60000);
+                if (downloadTimestamps.length >= MAX_DOWNLOADS_PER_MINUTE) {
+                    $('#download-cooldown').text('Reached download limit per minute, please try again later').show();
+                    return false;
+                }
+
+                $('#download-cooldown').hide();
+                return true;
+            }
+
+            $('#life-weeks-form').submit(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '/',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        $('#calculation-result').html(response.calculation_text).show();
+                        images = response.images;
+                        colorSchemeNames = response.color_scheme_names;
+                        filenames = response.filenames;
+                        
+                        // Randomly select an initial color scheme
+                        currentColorScheme = getRandomColorScheme(colorSchemeNames);
+                        
+                        // Create color scheme buttons
+                        let buttonsHtml = '';
+                        for (let scheme in images) {
+                            buttonsHtml += `<button class="color-scheme-btn ${scheme === currentColorScheme ? 'active' : ''}" data-scheme="${scheme}">${colorSchemeNames[scheme]}</button>`;
+                        }
+                        $('#color-scheme-buttons').html(buttonsHtml).show();
+                        
+                        // Display initial image
+                        updateImage(currentColorScheme);
+                        $('#download-hint').show();
+                    },
+                    error: function() {
+                        alert('Calculation failed. Please try again.');
+                    }
+                });
+            });
+
+            // Color scheme switch
+            $(document).on('click', '.color-scheme-btn', function() {
+                $('.color-scheme-btn').removeClass('active');
+                $(this).addClass('active');
+                currentColorScheme = $(this).data('scheme');
+                updateImage(currentColorScheme);
+            });
+
+            function updateImage(scheme) {
+                let downloadLink = $('#download-link');
+                let imageElement = $('#life-weeks-image');
+                
+                if (images[scheme]) {
+                    let imageData = 'data:image/png;base64,' + images[scheme];
+                    imageElement.attr('src', imageData).show();
+                } else {
+                    // If the image hasn't been generated yet, send a request to generate the image
+                    $.ajax({
+                        url: '/generate_image',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            scheme: scheme,
+                            birth_date: $('#birth_date').val(),
+                            name: $('#name').val(),
+                            life_expectancy: $('#life_expectancy').val()
+                        }),
+                        success: function(response) {
+                            images[scheme] = response.image;
+                            filenames[scheme] = response.filename;
+                            let imageData = 'data:image/png;base64,' + response.image;
+                            imageElement.attr('src', imageData).show();
+                        },
+                        error: function() {
+                            alert('Image generation failed. Please try again.');
+                        }
+                    });
+                }
+                
+                downloadLink.off('click').on('click', function(e) {
+                    e.preventDefault();
+                    if (canDownload()) {
+                        const now = Date.now();
+                        lastDownloadTime = now;
+                        downloadTimestamps.push(now);
+                        
+                        // Send download request to server
+                        $.ajax({
+                            url: '/download',
+                            method: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                image: images[scheme],
+                                filename: filenames[scheme]
+                            }),
+                            success: function(response) {
+                                let link = document.createElement('a');
+                                link.href = response.data_url;
+                                link.download = response.filename;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            },
+                            error: function(xhr) {
+                                if (xhr.status === 429) {
+                                    $('#download-cooldown').text('Server download limit: Please try again later').show();
+                                } else {
+                                    alert('Download failed. Please try again.');
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            function updateCooldownText() {
+                const now = Date.now();
+                const timeSinceLastDownload = now - lastDownloadTime;
+                if (timeSinceLastDownload < DOWNLOAD_COOLDOWN) {
+                    const remainingTime = Math.ceil((DOWNLOAD_COOLDOWN - timeSinceLastDownload) / 1000);
+                    $('#download-cooldown').text(`Download cooldown: ${remainingTime} seconds`).show();
+                    setTimeout(updateCooldownText, 1000);
+                } else {
+                    $('#download-cooldown').hide();
+                }
+            }
+
+            function createStars() {
+                const starsContainer = document.querySelector('.stars');
+                if (starsContainer.children.length > 0) return; // If stars already exist, don't create more
+
+                const starCount = 200;
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.classList.add('star');
+                    star.style.width = star.style.height = `${Math.random() * 3}px`;
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 100}%`;
+                    star.style.animationDelay = `${Math.random() * 2}s`;
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            // Ensure DOM is loaded before creating stars
+            document.addEventListener('DOMContentLoaded', createStars);
+
+            // To solve issues on some mobile devices, we also call createStars in window.onload
+            window.addEventListener('load', createStars);
+
+            // Try creating stars again in setTimeout in case other methods fail
+            setTimeout(createStars, 1000);
+
+            $(window).on('resize', centerActiveButton);
+        });
+
+        function getRandomColorScheme(schemes) {
+            const schemeNames = Object.keys(schemes);
+            return schemeNames[Math.floor(Math.random() * schemeNames.length)];
+        }
+
+        function generateLifeExpectancyOptions() {
+            const select = document.getElementById('life_expectancy');
+            for (let age = 50; age <= 125; age += 5) {
+                const option = document.createElement('option');
+                option.value = age;
+                option.textContent = `${age} years`;
+                if (age === 100) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            }
+        }
+
+        generateLifeExpectancyOptions();
+    </script>
+</body>
+</html>
